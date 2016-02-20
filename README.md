@@ -1,1 +1,1 @@
-Scala Storm Starter
+kafka-storm-starter

@@ -4,6 +4,8 @@ import backtype.storm.{ Config, LocalCluster, StormSubmitter }
 import backtype.storm.testing.TestWordSpout
 import backtype.storm.topology.TopologyBuilder
 import backtype.storm.utils.Utils
+import storm.kafka.{KafkaSpout, SpoutConfig, ZkHosts, StringScheme}
+import backtype.storm.spout.SchemeAsMultiScheme
 
 object ExclamationTopology {
   def main(args: Array[String]) {
@@ -11,8 +13,18 @@ object ExclamationTopology {
 
     val builder: TopologyBuilder = new TopologyBuilder()
 
-    builder.setSpout("word", new TestWordSpout(), 10)
-    builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("word")
+    val topic = "kafkaStorm"
+    val kafkaZkConnect = "127.0.0.1:2181"
+    val zkHosts = new ZkHosts(kafkaZkConnect, "/brokers")
+    val zkRoot = "/kafkastorm"
+    val zkSpoutId = "kafka-spout"
+    val kafkaConfig = new SpoutConfig(zkHosts, topic, zkRoot, zkSpoutId)
+    kafkaConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
+    val kafkaSpout = new KafkaSpout(kafkaConfig)
+    val kafkaSpoutId = "word-spout"
+    builder.setSpout(kafkaSpoutId, kafkaSpout)
+
+    builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping(kafkaSpoutId)
     builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1")
 
     val config = new Config()

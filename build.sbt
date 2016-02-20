@@ -16,9 +16,19 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.apache.storm" % "storm-core" % "0.10.0" % "provided",
+  "org.apache.kafka" % "kafka_2.11" % "0.8.2.1"
+      exclude("org.slf4j", "slf4j-api")
+      exclude("org.slf4j", "slf4j-log4j12"),
+  "org.apache.storm" % "storm-core" % "0.10.0" % "provided"
+      exclude("org.slf4j", "slf4j-simple")
+      exclude("org.slf4j", "slf4j-api")
+      exclude("org.slf4j", "slf4j-log4j12"),
+  "org.apache.storm" % "storm-kafka" % "0.10.0"
+      exclude("org.slf4j", "slf4j-api")
+      exclude("org.slf4j", "slf4j-log4j12"),
   "org.clojure" % "clojure" % "1.6.0" % "provided",
-  "org.specs2" %% "specs2" % "2.3.13" % "test"
+  "org.specs2" %% "specs2" % "2.3.13" % "test",
+  "org.slf4j" % "slf4j-api" % "1.7.12"
 )
 
 mainClass in Compile := Some("storm.starter.topology.ExclamationTopology")
